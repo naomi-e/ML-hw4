@@ -118,12 +118,14 @@ def expectation(points_list, mu, sigma, w):
     # TODO: Implement the function. compute likelihood array                  #
     ###########################################################################
     likelihood = np.empty(shape =[len(points_list), w.size])
-    #gaus_set = np.array([mu, sigma, w])
-    for i in range (len(points_list)):
-        for j in range (w.size):
-            normal = normal_pdf(points_list[i], mu[j], sigma[j])
-            #print(normal)
-            likelihood[i][j] = w[j]*normal
+
+    normal = lambda t, mean, std, w: w*normal_pdf(t, mean, std)
+    vfunc = np.vectorize(normal)
+
+    for j in range (w.size):
+        likelihood_return = vfunc(points_list, mu[j], sigma[j], w[j])
+        likelihood[:,j] = np.transpose(likelihood_return)
+        
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -149,7 +151,14 @@ def maximization(points_list, ranks):
     ###########################################################################
     # TODO: Implement the function. compute w_new, mu_new, sigma_new          #
     ###########################################################################
-    pass
+
+    points_np = np.array(points_list)
+    N = len(points_list)
+
+    w_new = ( 1 / N ) * ranks.sum(axis=0)
+    mu_new = (ranks * points_np[:, None]).sum(axis=0)* (1/w_new)* (1/N)
+    sigma_new =np.sqrt((( np.power((points_np[:, None] - mu_new),2))* ranks).sum(axis=0) * (1/w_new)* (1/N))  
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
