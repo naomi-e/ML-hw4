@@ -105,7 +105,7 @@ def normal_pdf(x, mean, std):
     #print(normal)
     return normal
 
-def expectation_2(points_list, mu, sigma, w):
+def expectation(points_list, mu, sigma, w):
     """
     :param points_list: the entire data set of points. type: list.
     :param mu: expectation of each gaussian. type: array
@@ -126,43 +126,6 @@ def expectation_2(points_list, mu, sigma, w):
         likelihood_return = vfunc(points_list, mu[j], sigma[j], w[j])
         likelihood[:,j] = np.transpose(likelihood_return)
         
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
-
-    return likelihood
-
-
-def expectation(points_list, mu, sigma, w):
-    """
-    :param points_list: the entire data set of points. type: list.
-    :param mu: expectation of each gaussian. type: array
-    :param sigma: std for of gaussian. type: array
-    :param w: weight of each gaussian. type: array
-    :return likelihood: dividend of ranks matrix (likelihood). likelihood[i][j] is the likelihood of point i to belong to gaussian j. type: array
-    """
-    likelihood = np.array([0.0])
-    ###########################################################################
-    # TODO: Implement the function. compute likelihood array                  #
-    ###########################################################################
-    likelihood = np.empty(shape =[len(points_list), w.size])
-    
-    normal = lambda t, mean, std, w: w*normal_pdf(t, mean, std)
-    vfunc = np.vectorize(normal)
-    
-    #gaus_set = np.array([mu, sigma, w])
-    #for i in range (len(points_list)):
-#     print("likelihood.shape:" ,likelihood.shape)
-#     print("likelihood[:,0].shape: ", likelihood[:,0].shape)
-    for j in range (w.size):
-        #normal = normal_pdf(points_list[i], mu[j], sigma[j])
-        #print(normal)
-        #likelihood[:][j] = w[j]*normal
-        likelihood_return = vfunc(points_list, mu[j], sigma[j], w[j])
-#         print("likelihood_return.shape: ", likelihood_return.shape)
-#         print("likelihood.shape:" ,likelihood.shape)
-#         print("likelihood[:,j].shape: ", likelihood[:,j].shape)
-        likelihood[:,j] = np.transpose(likelihood_return)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -214,7 +177,8 @@ def calc_max_delta(old_param, new_param):
     ###########################################################################
     # TODO: find the maximal delta between each old and new parameter         #
     ###########################################################################
-    difference = new_param - old_param 
+    print('old param:' old_param, 'new param:', new_param)
+    difference = (new_param - old_param) 
     difference = np.absolute(difference)
     max_delta = max(difference)
     ###########################################################################
@@ -256,11 +220,8 @@ def expectation_maximization(points_list, k, max_iter, epsilon):
 
 
     """
-    w = np.array([0.0])
-    mu = np.array([0.0])
-    sigma = np.array([0.0])
-    # TODO: init values and then remove the 3 lines above
-
+    w, mu, sigma = init(points_list, k)
+    
     # Loop until convergence
     delta = np.infty
     iter_num = 0
@@ -269,21 +230,20 @@ def expectation_maximization(points_list, k, max_iter, epsilon):
     while delta > epsilon and iter_num <= max_iter:
 
         # E step
-        likelihood = None  # TODO: compute likelihood array
-
+        likelihood = expectation(points_list, mu, sigma, w)
         likelihood_sum = likelihood.sum(axis=1)
         log_likelihood.append(np.sum(np.log(likelihood_sum), axis=0))
 
         # M step
-        ranks = None  # TODO: compute ranks array using the likelihood array
+        ranks = likelihood_sum
 
-        w_new, mu_new, sigma_new = None, None, None   # TODO: compute w_new, mu_new, sigma_new
-
+        w_new, mu_new, sigma_new = maximization(points_list, ranks)
+        
         # Check significant change in parameters
         delta = max(calc_max_delta(w, w_new), calc_max_delta(mu, mu_new), calc_max_delta(sigma, sigma_new))
 
-        # TODO: below, set the new values for w, mu, sigma
-
+        w, mu, sigma = w_new, mu_new, sigma_new
+        
         if iter_num % 10 == 0:
             res = ranks.argmax(axis=1)
             plot_gmm(k, res, mu, sigma, points_list, iter_num)
