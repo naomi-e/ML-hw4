@@ -177,7 +177,6 @@ def calc_max_delta(old_param, new_param):
     ###########################################################################
     # TODO: find the maximal delta between each old and new parameter         #
     ###########################################################################
-    print('old param:' old_param, 'new param:', new_param)
     difference = (new_param - old_param) 
     difference = np.absolute(difference)
     max_delta = max(difference)
@@ -233,13 +232,11 @@ def expectation_maximization(points_list, k, max_iter, epsilon):
         likelihood = expectation(points_list, mu, sigma, w)
         likelihood_sum = likelihood.sum(axis=1)
         log_likelihood.append(np.sum(np.log(likelihood_sum), axis=0))
-
+        
         # M step
-        ranks = likelihood_sum
-
+        ranks = likelihood / likelihood_sum[:, None]
         w_new, mu_new, sigma_new = maximization(points_list, ranks)
         
-        # Check significant change in parameters
         delta = max(calc_max_delta(w, w_new), calc_max_delta(mu, mu_new), calc_max_delta(sigma, sigma_new))
 
         w, mu, sigma = w_new, mu_new, sigma_new
