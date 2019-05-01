@@ -105,7 +105,7 @@ def normal_pdf(x, mean, std):
     #print(normal)
     return normal
 
-def expectation(points_list, mu, sigma, w):
+def expectation_2(points_list, mu, sigma, w):
     """
     :param points_list: the entire data set of points. type: list.
     :param mu: expectation of each gaussian. type: array
@@ -124,6 +124,43 @@ def expectation(points_list, mu, sigma, w):
             normal = normal_pdf(points_list[i], mu[j], sigma[j])
             #print(normal)
             likelihood[i][j] = w[j]*normal
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
+
+    return likelihood
+
+
+def expectation(points_list, mu, sigma, w):
+    """
+    :param points_list: the entire data set of points. type: list.
+    :param mu: expectation of each gaussian. type: array
+    :param sigma: std for of gaussian. type: array
+    :param w: weight of each gaussian. type: array
+    :return likelihood: dividend of ranks matrix (likelihood). likelihood[i][j] is the likelihood of point i to belong to gaussian j. type: array
+    """
+    likelihood = np.array([0.0])
+    ###########################################################################
+    # TODO: Implement the function. compute likelihood array                  #
+    ###########################################################################
+    likelihood = np.empty(shape =[len(points_list), w.size])
+    
+    normal = lambda t, mean, std, w: w*normal_pdf(t, mean, std)
+    vfunc = np.vectorize(normal)
+    
+    #gaus_set = np.array([mu, sigma, w])
+    #for i in range (len(points_list)):
+#     print("likelihood.shape:" ,likelihood.shape)
+#     print("likelihood[:,0].shape: ", likelihood[:,0].shape)
+    for j in range (w.size):
+        #normal = normal_pdf(points_list[i], mu[j], sigma[j])
+        #print(normal)
+        #likelihood[:][j] = w[j]*normal
+        likelihood_return = vfunc(points_list, mu[j], sigma[j], w[j])
+#         print("likelihood_return.shape: ", likelihood_return.shape)
+#         print("likelihood.shape:" ,likelihood.shape)
+#         print("likelihood[:,j].shape: ", likelihood[:,j].shape)
+        likelihood[:,j] = np.transpose(likelihood_return)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
