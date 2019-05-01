@@ -177,7 +177,9 @@ def calc_max_delta(old_param, new_param):
     ###########################################################################
     # TODO: find the maximal delta between each old and new parameter         #
     ###########################################################################
-    pass
+    difference = new_param - old_param 
+    difference = np.absolute(difference)
+    max_delta = max(difference)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
