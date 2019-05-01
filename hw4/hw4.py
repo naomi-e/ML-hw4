@@ -55,7 +55,7 @@ def get_num_of_gaussians():
     ###########################################################################
     # TODO: Implement the function.                                           #
     ###########################################################################
-    pass
+    k=4
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -75,13 +75,35 @@ def init(points_list, k):
     ###########################################################################
     # TODO: Implement the function. compute init values for w, mu, sigma.     #
     ###########################################################################
-    pass
+    w=np.ones(k) / k
+    w[-1] = w[-1] + (1 - w.sum())
+    sigma = np.ones(k)
+    points_list_np = np.array(points_list)
+    mu_unit = (points_list_np.max() - points_list_np.min())/(k+1)
+    mu = np.linspace(points_list_np.min()+mu_unit,points_list_np.max()-mu_unit,k)
+    
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
 
     return w, mu, sigma
 
+
+def normal_pdf(x, mean, std):
+    """
+    Calculate normal desnity function for a given x, mean and standrad deviation.
+ 
+    Input:
+    - x: A value we want to compute the distribution for.
+    - mean: The mean value of the distribution.
+    - std:  The standard deviation of the distribution.
+ 
+    Returns the normal distribution pdf according to the given mean and var for the given x.    
+    """
+    
+    normal = 1 / (np.sqrt( 2 * np.pi * np.power(std, 2))) * np.exp( - np.power((x - mean), 2) / (2 * np.power(std, 2) ))
+    #print(normal)
+    return normal
 
 def expectation(points_list, mu, sigma, w):
     """
@@ -95,7 +117,13 @@ def expectation(points_list, mu, sigma, w):
     ###########################################################################
     # TODO: Implement the function. compute likelihood array                  #
     ###########################################################################
-    pass
+    likelihood = np.empty(shape =[len(points_list), w.size])
+    #gaus_set = np.array([mu, sigma, w])
+    for i in range (len(points_list)):
+        for j in range (w.size):
+            normal = normal_pdf(points_list[i], mu[j], sigma[j])
+            #print(normal)
+            likelihood[i][j] = w[j]*normal
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
